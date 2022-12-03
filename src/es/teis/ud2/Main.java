@@ -6,10 +6,7 @@ package es.teis.ud2;
 
 import es.teis.ud2.exceptions.InstanceNotFoundException;
 import es.teis.ud2.exceptions.SaldoInsuficienteException;
-import es.teis.ud2.model.Account;
 import es.teis.ud2.model.AccountMovement;
-import es.teis.ud2.model.Empleado;
-import es.teis.ud2.model.dao.account.AccountSQLServerDao;
 import es.teis.ud2.model.dao.empleado.EmpleadoSQLServerDao;
 import es.teis.ud2.services.empleado.EmpleadoService;
 import java.math.BigDecimal;
@@ -25,10 +22,10 @@ public class Main {
     public static void main(String[] args) throws InstanceNotFoundException {
 
         //Método a comprobar
-        AccountMovement accMovement = transferirDineroEntreEmpleados(7369, 7499, new BigDecimal(1588888));
+        AccountMovement accMovement = transferirDineroEntreEmpleados(7369, 7499, new BigDecimal(1500));
         if (accMovement != null) {
-            System.out.println("Se ha creado el registro: " + accMovement);
-        }
+            System.out.println("Se ha creado el registro:\n" + accMovement.toString());
+        } 
     }
 
 
@@ -36,11 +33,9 @@ public class Main {
         AccountMovement accMovement = null;
         try {
             //Completa para crear el servicio  y llamar a su método  transferir(int empnoOrigen, int empnoDestino, BigDecimal cantidad)
-            EmpleadoSQLServerDao empleado = null;
+            EmpleadoSQLServerDao empleado = new EmpleadoSQLServerDao();
             EmpleadoService servicio = new EmpleadoService(empleado);
-            
             accMovement = servicio.transferir(empnoOrigen, empnoDestino, cantidad);
-            
         } catch (SaldoInsuficienteException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InstanceNotFoundException ex) {
