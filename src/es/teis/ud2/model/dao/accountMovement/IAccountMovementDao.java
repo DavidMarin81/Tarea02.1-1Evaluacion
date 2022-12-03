@@ -3,6 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Interface.java to edit this template
  */
 package es.teis.ud2.model.dao.accountMovement;
+
 import es.teis.ud2.exceptions.InstanceNotFoundException;
 import es.teis.ud2.model.AccountMovement;
 import es.teis.ud2.model.dao.IGenericDao;

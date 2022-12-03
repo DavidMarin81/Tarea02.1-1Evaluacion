@@ -19,4 +19,7 @@ public interface IAccountDao extends IGenericDao<Account> {
     //Método transferir modificado
     int transferir(int accIdOrigen, int accIdDestino, BigDecimal amount);
 
+    
+    
+
 }

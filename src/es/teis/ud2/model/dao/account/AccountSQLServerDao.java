@@ -66,29 +66,30 @@ public class AccountSQLServerDao
 
     @Override
     public Account read(int id) throws InstanceNotFoundException {
-
+        
         int accountNo;
         int empno;
         BigDecimal amount;
         int contador;
         Account cuenta = null;
-
+        
         try (
                  Connection conexion = this.dataSource.getConnection();  PreparedStatement sentencia
                 = conexion.prepareStatement("SELECT  [ACCOUNTNO]\n"
                         + "      ,[EMPNO]\n"
                         + "      ,[AMOUNT]\n"
                         + "  FROM [empresa].[dbo].[ACCOUNT]"
-                        + "WHERE [ACCOUNTNO]=?");) {
+                        + "WHERE [EMPNO]=?");) {
             sentencia.setInt(1, id);
-            
+
             ResultSet result = sentencia.executeQuery();
-            
             if (result.next()) {
                 contador = 0;
+                
                 accountNo = result.getInt(++contador);
                 empno = result.getInt(++contador);
                 amount = result.getBigDecimal(++contador);
+                
                 Empleado empleado = new Empleado();
                 empleado.setEmpleadoId(empno);
                 cuenta = new Account(accountNo, empleado, amount);
@@ -153,7 +154,7 @@ public class AccountSQLServerDao
         Connection con = null;
         //Se declara una variable que recogerá el id del movimiento creado.
         //Se inicializa a -1 y solo cambiará de estado si se recoge un identificador del movimiento
-        int id = -1;
+        int id = 0;
         try {
             con = this.dataSource.getConnection();
             try ( PreparedStatement updateOrigen = con.prepareStatement("UPDATE [dbo].[ACCOUNT]\n"
@@ -166,15 +167,13 @@ public class AccountSQLServerDao
                             + "           ,[AMOUNT]\n"
                             + "           ,[DATETIME])\n"
                             + "     VALUES\n"
-                            + "           (?, ?, ?, GETDATE())", Statement.RETURN_GENERATED_KEYS);  PreparedStatement selectMov = con.prepareStatement("SELECT \n"
-                            + "      ,[ACCOUNT_ORIGIN_ID]\n"
+                            + "           (?, ?, ?, GETDATE())", Statement.RETURN_GENERATED_KEYS);  PreparedStatement selectMov = con.prepareStatement("SELECT [ACCOUNT_ORIGIN_ID]\n"
                             + "      ,[ACCOUNT_DEST_ID]\n"
                             + "      ,[AMOUNT]\n"
                             + "      ,[DATETIME]\n"
-                            + "  FROM [dbo].[ACC_MOVEMENT]\n"
-                            + " [ACCOUNT_MOV_ID]=?", Statement.RETURN_GENERATED_KEYS);  PreparedStatement identificador = con.prepareStatement("SELECT [ACCOUNT_MOV_ID]\n"
+                            + "      ,[FECHA]\n"
                             + "  FROM [empresa].[dbo].[ACC_MOVEMENT]\n"
-                            + "  wHERE [ACCOUNT_MOV_ID] = ?")) {
+                            + "  WHERE [ACCOUNT_MOV_ID] = ?", Statement.RETURN_GENERATED_KEYS);) {
                 con.setAutoCommit(false);
 
                 updateOrigen.setBigDecimal(1, amount);
@@ -188,15 +187,23 @@ public class AccountSQLServerDao
                 insertMov.setInt(1, accIdOrigen);
                 insertMov.setInt(2, accIdDestino);
                 insertMov.setBigDecimal(3, amount);
-
+                
                 insertMov.executeUpdate();
+                
+                //Se recoge el identificador del movimiento
+                ResultSet result = insertMov.getGeneratedKeys();
+                if (result.next()) {
+                    id = result.getInt(1);
+                }
+                
+                selectMov.setInt(1, id);
 
-                con.commit();
-                //Se recoge el identificador si se confirma el con.commit();
-                ResultSet resultado = identificador.executeQuery();
+                ResultSet resultado = selectMov.executeQuery();
+
                 if (resultado.next()) {
                     id = resultado.getInt(1);
                 }
+                con.commit();
 
             } catch (SQLException ex) {
                 ex.printStackTrace();

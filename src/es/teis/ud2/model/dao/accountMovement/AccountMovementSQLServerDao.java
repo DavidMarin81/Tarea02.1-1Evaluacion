@@ -37,6 +37,7 @@ public class AccountMovementSQLServerDao extends AbstractGenericDao<AccountMovem
     @Override
     public AccountMovement read(int id) throws InstanceNotFoundException {
         //Implementar el método read
+        int identificador;
         int accountOriginId;
         int accountDestId;
         BigDecimal amount;
@@ -44,7 +45,7 @@ public class AccountMovementSQLServerDao extends AbstractGenericDao<AccountMovem
         Date fecha;
         AccountMovement movimiento = null;
         int contador = 0;
-
+        
         try (
                  Connection conexion = this.dataSource.getConnection();  PreparedStatement sentencia
                 = conexion.prepareStatement("SELECT [ACCOUNT_MOV_ID]\n"
@@ -55,11 +56,10 @@ public class AccountMovementSQLServerDao extends AbstractGenericDao<AccountMovem
                         + "      ,[FECHA]\n"
                         + "  FROM [empresa].[dbo].[ACC_MOVEMENT] WHERE [ACCOUNT_MOV_ID] = ?");) {
             sentencia.setInt(1, id);
-
             ResultSet result = sentencia.executeQuery();
             if (result.next()) {
                 contador = 0;
-
+                identificador = result.getInt(++contador);
                 accountOriginId = result.getInt(++contador);
                 accountDestId = result.getInt(++contador);
                 amount = result.getBigDecimal(++contador);

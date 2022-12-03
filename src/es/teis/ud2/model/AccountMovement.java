@@ -73,12 +73,9 @@ public class AccountMovement {
 
     @Override
     public String toString() {
-        return super.toString(); 
+        return "AccountMovement{" + "accountOriginId=" + accountOriginId + ", accountDestId=" + accountDestId + ", amount=" + amount + ", datetime=" + datetime + ", fecha=" + fecha + '}';
     }
-    
-    
-    
-    
-    
+
+     
     
 }

@@ -10,7 +10,6 @@ import es.teis.ud2.model.Account;
 import es.teis.ud2.model.AccountMovement;
 import es.teis.ud2.model.Empleado;
 import es.teis.ud2.model.dao.account.AccountSQLServerDao;
-import es.teis.ud2.model.dao.account.IAccountDao;
 import es.teis.ud2.model.dao.accountMovement.AccountMovementSQLServerDao;
 import es.teis.ud2.model.dao.empleado.IEmpleadoDao;
 import java.math.BigDecimal;
@@ -44,27 +43,27 @@ public class EmpleadoService implements IEmpleadoServicio {
         if (cantidad.compareTo(minimo) <= 0) {
             throw new UnsupportedOperationException();
         }
-        //Recuperar dato
-        AccountMovement movimiento = null;
-        Account numEmpleadoOrigen = null;
-        Account numEmpleadoDestino = null;
-        AccountSQLServerDao d = new AccountSQLServerDao();
         
-        numEmpleadoOrigen = d.read(empnoOrigen);
-        if (numEmpleadoOrigen != null) {
-            BigDecimal dineroOrigen = numEmpleadoOrigen.getMontante();
-            if (cantidad.compareTo(dineroOrigen) <= 0){
+        
+        //Recuperar dato
+        AccountMovement movimiento = new AccountMovement();
+        Account cuentaEmpleadoOrigen = new Account();
+        Account cuentaEmpleadoDestino = new Account();
+        AccountSQLServerDao accountSQL = new AccountSQLServerDao();
+        AccountMovementSQLServerDao mov = new AccountMovementSQLServerDao();
+        
+        cuentaEmpleadoOrigen = accountSQL.read(empnoOrigen);
+        
+        if (cuentaEmpleadoOrigen != null) {
+            BigDecimal dineroOrigen = cuentaEmpleadoOrigen.getMontante();
+            if (dineroOrigen.compareTo(cantidad) <= 0){
                 throw new SaldoInsuficienteException("No hay saldo suficiente", dineroOrigen, cantidad);
             } else {
-                numEmpleadoDestino = d.read(empnoDestino);
-                int idOrigen = numEmpleadoOrigen.getAccountId();
-                int idDestino = numEmpleadoDestino.getAccountId();
-                 //Se recoge el identificador de la transferencia
-                int idMov = d.transferir(idOrigen, idDestino, cantidad);
-                //Se crea el objeto de tipo AccountMovementSQLServerDao
-                AccountMovementSQLServerDao movimientoSQL = null;
-                //Se obtienen los datos del movimiento llamando al método read()
-                movimiento = movimientoSQL.read(idMov);
+                cuentaEmpleadoDestino = accountSQL.read(empnoDestino);
+                int idMov = accountSQL.transferir(cuentaEmpleadoOrigen.getAccountId(), cuentaEmpleadoDestino.getAccountId(), cantidad);
+                
+                movimiento = mov.read(idMov);
+                
                 if (movimiento == null){
                     throw new InstanceNotFoundException(movimiento, "Movimiento");
                 }
