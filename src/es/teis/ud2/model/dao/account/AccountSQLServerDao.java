@@ -79,17 +79,16 @@ public class AccountSQLServerDao
                         + "      ,[EMPNO]\n"
                         + "      ,[AMOUNT]\n"
                         + "  FROM [empresa].[dbo].[ACCOUNT]"
-                        + "WHERE ACCOUNTNO=?");) {
+                        + "WHERE [ACCOUNTNO]=?");) {
             sentencia.setInt(1, id);
-
+            
             ResultSet result = sentencia.executeQuery();
+            
             if (result.next()) {
                 contador = 0;
-
                 accountNo = result.getInt(++contador);
                 empno = result.getInt(++contador);
                 amount = result.getBigDecimal(++contador);
-
                 Empleado empleado = new Empleado();
                 empleado.setEmpleadoId(empno);
                 cuenta = new Account(accountNo, empleado, amount);
@@ -150,13 +149,13 @@ public class AccountSQLServerDao
     }
 
     @Override
-    public boolean transferir(int accIdOrigen, int accIdDestino, BigDecimal amount) {
-
+    public int transferir(int accIdOrigen, int accIdDestino, BigDecimal amount) {
         Connection con = null;
-        boolean exito = false;
+        //Se declara una variable que recogerá el id del movimiento creado.
+        //Se inicializa a -1 y solo cambiará de estado si se recoge un identificador del movimiento
+        int id = -1;
         try {
             con = this.dataSource.getConnection();
-
             try ( PreparedStatement updateOrigen = con.prepareStatement("UPDATE [dbo].[ACCOUNT]\n"
                     + "   SET [AMOUNT] = (AMOUNT - ?) \n"
                     + " WHERE ACCOUNTNO = ?");  PreparedStatement updateDestino = con.prepareStatement("UPDATE [dbo].[ACCOUNT]\n"
@@ -173,7 +172,9 @@ public class AccountSQLServerDao
                             + "      ,[AMOUNT]\n"
                             + "      ,[DATETIME]\n"
                             + "  FROM [dbo].[ACC_MOVEMENT]\n"
-                            + " [ACCOUNT_MOV_ID]=?", Statement.RETURN_GENERATED_KEYS);) {
+                            + " [ACCOUNT_MOV_ID]=?", Statement.RETURN_GENERATED_KEYS);  PreparedStatement identificador = con.prepareStatement("SELECT [ACCOUNT_MOV_ID]\n"
+                            + "  FROM [empresa].[dbo].[ACC_MOVEMENT]\n"
+                            + "  wHERE [ACCOUNT_MOV_ID] = ?")) {
                 con.setAutoCommit(false);
 
                 updateOrigen.setBigDecimal(1, amount);
@@ -191,7 +192,11 @@ public class AccountSQLServerDao
                 insertMov.executeUpdate();
 
                 con.commit();
-                exito = true;
+                //Se recoge el identificador si se confirma el con.commit();
+                ResultSet resultado = identificador.executeQuery();
+                if (resultado.next()) {
+                    id = resultado.getInt(1);
+                }
 
             } catch (SQLException ex) {
                 ex.printStackTrace();
@@ -215,7 +220,7 @@ public class AccountSQLServerDao
                 }
             }
         }
-        return exito;
+        return id;
     }
 
 }

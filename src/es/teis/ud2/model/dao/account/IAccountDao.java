@@ -14,7 +14,9 @@ import java.math.BigDecimal;
  */
 public interface IAccountDao extends IGenericDao<Account> {
 
-     boolean transferir(int accIdOrigen, int accIdDestino, BigDecimal amount);
-     
-     
+     //boolean transferir(int accIdOrigen, int accIdDestino, BigDecimal amount);
+    
+    //Método transferir modificado
+    int transferir(int accIdOrigen, int accIdDestino, BigDecimal amount);
+
 }

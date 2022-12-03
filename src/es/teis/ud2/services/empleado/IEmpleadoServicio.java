@@ -4,7 +4,11 @@
  */
 package es.teis.ud2.services.empleado;
 
+import es.teis.ud2.exceptions.InstanceNotFoundException;
+import es.teis.ud2.exceptions.SaldoInsuficienteException;
+import es.teis.ud2.model.AccountMovement;
 import es.teis.ud2.model.Empleado;
+import java.math.BigDecimal;
 
 /**
  *
@@ -17,5 +21,7 @@ public interface IEmpleadoServicio {
 //    public boolean delete(int empId);
 //    public boolean update(Empleado empleado);
     
- 
+    //Se añade el siguiente método
+    public AccountMovement transferir(int empnoOrigen, int empnoDestino, BigDecimal cantidad) throws SaldoInsuficienteException, InstanceNotFoundException, UnsupportedOperationException;
+    
 }
