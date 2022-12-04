@@ -19,7 +19,7 @@ import java.util.logging.Logger;
  */
 public class Main {
 
-    public static void main(String[] args) throws InstanceNotFoundException {
+    public static void main(String[] args) {
 
         //Método a comprobar
         AccountMovement accMovement = transferirDineroEntreEmpleados(7369, 7499, new BigDecimal(1500));
